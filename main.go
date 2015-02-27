@@ -4,9 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"os"
 
 	"github.com/coreos/go-etcd/etcd"
+	"github.com/ropes/annyong/Annyong"
 )
 
 var (
@@ -15,6 +17,14 @@ var (
 	etcd_host string
 	ttl       uint64
 )
+
+func findIp() {
+	ifaddrs, _ := net.InterfaceAddrs()
+
+	for _, a := range ifaddrs {
+		fmt.Printf("%#v %#v \n", a.Network(), a.String())
+	}
+}
 
 func main() {
 	flag.StringVar(&etcd_host, "etcd_host", "http://127.0.0.1:4001", "Connection string to the etcd [cluster]")
@@ -25,13 +35,19 @@ func main() {
 
 	Info.Print("annyong!\n")
 
+	ip, err := annyong.GetIP()
+	if err != nil {
+		Info.Printf("Error getting IP: %#v \n", err)
+	}
+	fmt.Printf("%s \n ", ip)
+
 	machines := []string{etcd_host}
 	ec := etcd.NewClient(machines)
 	fmt.Printf("%#v\n", ec)
 
 	h, _ := os.Hostname()
 	Info.Print(h)
-	path := fmt.Sprintf("/%s", h)
+	path := fmt.Sprintf("/annyong/%s", h)
 	Info.Print(path)
 
 	resp, _ := ec.Get("hihi", false, false)
@@ -47,12 +63,12 @@ func main() {
 	Info.Printf("%#v \n", resp)
 
 	/*
-		path = path + "
-		resp, _ = ec.Create("hostname", h, path, ttl)
-		if resp == nil {
-			Info.Print("response is nil!")
-		}
-		Info.Printf("%#v \n", resp)
+		  path := fmt.Sprintf("/annyong/%s", h)
+			resp, _ = ec.Create("hostname", h, path, ttl)
+			if resp == nil {
+				Info.Print("response is nil!")
+			}
+			Info.Printf("%#v \n", resp)
 	*/
 
 }
