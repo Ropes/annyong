@@ -29,12 +29,13 @@ annyong -etcd_host http://localhost:4001
 ```
 
 ###Would be cool
-* Expected values  
-`annyong -pinghttp localhost:9200/endpoint$expected_value`
-`annyong -pingexec "some bash command and"$expectedvalue`
+* Webhooks
+  * Tricky part is configuring it with the cli
+  * Match
 
-* etcd connection  
-`annyong -etcd 10.240.10.10:4001`
+* Expected values  
+`annyong ... -pinghttp localhost:9200/endpoint$expected_value`
+`annyong ... -pingexec "some bash command and"$expectedvalue`
 
 * Specify values discovered from environment  
 `annyong -tag vmname$cmdtag -cmd "cmdtag$curl localhost"`
