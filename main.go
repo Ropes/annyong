@@ -20,7 +20,7 @@ var (
 	pathStub  string
 	logLevel  string
 	cmds      annyong.CmdSlice
-	cmdMap    *map[string]string
+	cmdMap    *map[string]*annyong.Action
 )
 
 func main() {

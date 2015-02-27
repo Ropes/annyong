@@ -20,14 +20,29 @@ func (c *CmdSlice) Set(value string) error {
 	return nil
 }
 
+//Action functions as either a command or response to Actions taken
+//  Key is what matches Commands to their responsive webooks
+//  Cmd is the execution which takes place
+//  Aux functions as the extended data which is checked against or submitted
+type Action struct {
+	Key string
+	Cmd string
+	Aux string
+}
+
 //Parse single key|command string pairs out into their key and respective command.
 //Returns a map of keys to their command
-func ParseCmds(cmds CmdSlice) *map[string]string {
-	cmap := make(map[string]string)
+func ParseCmds(cmds CmdSlice) *map[string]*Action {
+	cmap := make(map[string]*Action)
 	for _, c := range cmds {
-		tmp := strings.Split(c, "|")
+		tmp := strings.Split(c, "[[")
 		if len(tmp) == 2 {
-			cmap[tmp[0]] = tmp[1]
+			tmp2 := strings.Split(tmp[1], "]]")
+			if len(tmp2) == 2 {
+				cmap[tmp[0]] = &Action{Key: tmp[0], Cmd: tmp2[0], Aux: tmp2[1]}
+			} else {
+				cmap[tmp[0]] = &Action{Key: tmp[0], Cmd: tmp[1], Aux: ""}
+			}
 		}
 	}
 	return &cmap
