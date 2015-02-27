@@ -6,7 +6,8 @@ Annyong!  Minimal service discovery service which broadcasts determines informat
 
 Prototyped at Lytics hackathon... so sleep depravity will apply.
 
-##Design
+Design
+------
 * Binary is loaded onto machine configured with minimal setup information to connect to etcd.
   * Configuration holds ip:port to etcd cluster
   * Binary will gather information via static system lookups or by using resource lookups defined optionally in the config
@@ -17,9 +18,15 @@ Prototyped at Lytics hackathon... so sleep depravity will apply.
 
 ##CLI
 * MVP
-`annyong -etcd_host localhost:4001`
-  * Post ip and hostname to etcd
+`annyong -etcd_host http://localhost:4001 -logLevel [debug...fatal] -pathStub /annyong -ttl 30`
+  * Post hostname and ip value to etcd
+    * `/annyong/hostname/ip="...."`
 
+##Example
+* Most basic  
+```
+annyong -etcd_host http://localhost:4001
+```
 
 ###Would be cool
 * Expected values  
@@ -35,8 +42,6 @@ Prototyped at Lytics hackathon... so sleep depravity will apply.
   * tag
 
 ##TODO
-* etcd client/connections
-  * TTL system
 * Configuration
   * CLI flags
   * Resource paths 
