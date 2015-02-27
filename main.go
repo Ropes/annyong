@@ -21,21 +21,26 @@ var (
 	logLevel  string
 	cmds      annyong.CmdSlice
 	cmdMap    *map[string]*annyong.Action
+	hooks     annyong.CmdSlice
+	hookMap   *map[string]*annyong.Action
 )
 
 func main() {
 	flag.StringVar(&logLevel, "logLevel", "debug", "Log Level to run[debug,info,warn,error,fatal]")
 	flag.StringVar(&etcd_host, "etcd_host", "http://127.0.0.1:4001", "Connection string to the etcd [cluster]")
 	flag.StringVar(&pathStub, "pathStub", "/annyong", "Base etcd directory path to use for saving data")
-	flag.Var(&cmds, "cmd", "List of cmd$command-string pairs to potentially run")
+	flag.Var(&cmds, "cmd", "List of key[[command-string]]nil pairs to run and write to the hook pub-sub")
+	flag.Var(&hooks, "hook", "List of key[[command-string]]match-return-value hooks which match too Cmd responses")
 	flag.Uint64Var(&ttl, "ttl", 20, "TTL of directories created")
 
 	flag.Parse()
 	gou.SetupLogging(logLevel)
 
-	gou.Debugf("%#v\n", cmds)
 	cmdMap = annyong.ParseCmds(cmds)
-	gou.Debugf("%#v\n", cmdMap)
+	gou.Debugf("Commands %#v\n", cmdMap)
+
+	hookMap = annyong.ParseCmds(hooks)
+	gou.Debugf("Hooks: %#v \n", hookMap)
 
 	//Connect to etcd
 	machines := []string{etcd_host}

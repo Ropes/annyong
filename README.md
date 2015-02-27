@@ -2,6 +2,7 @@ Annyong!
 -------
 
 Annyong!  Minimal service discovery service which broadcasts determines information about itself and broadcasts to etcd.
+![annyong](http://38.media.tumblr.com/tumblr_lgf6pdu8gw1qfrk53o1_500.gif)
 (Designed with Google Compute Engine, Saltstack, and etcd in mind).
 
 Prototyped at Lytics hackathon... so sleep depravity will apply.
