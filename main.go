@@ -30,27 +30,25 @@ func main() {
 	flag.Parse()
 	gou.SetupLogging(logLevel)
 
-	ip, err := annyong.GetIP()
-	if err != nil {
-		gou.Infof("Error getting IP: %#v \n", err)
-	}
-
+	//Connect to etcd
 	machines := []string{etcd_host}
 	ec := etcd.NewClient(machines)
-	fmt.Printf("%#v\n", ec)
 
+	//Create base stub path
+	ec.CreateDir(pathStub, 0)
+
+	//Discover Base Host information
+	ip, err := annyong.GetIP()
+	if err != nil {
+		gou.Warnf("Error getting IP: %#v \n", err)
+	}
 	h, _ := os.Hostname()
-	gou.Info(h)
+	gou.Debugf("%s: %s\n", h, ip)
 
 	path := fmt.Sprintf("%s/%s", pathStub, h)
-	gou.Info(path)
-
-	ec.CreateDir(pathStub, 0)
 	go annyong.HoldDir(ec, path, ttl)
 
 	path = fmt.Sprintf("%s/ip", path)
-	gou.Debug(path)
-	gou.Debug(ip)
 	go annyong.PostKey(ec, path, ip, 0)
 
 	//Sleep in loop to let goroutines update etcd
