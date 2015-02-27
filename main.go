@@ -49,7 +49,7 @@ func main() {
 	go annyong.HoldDir(ec, path, ttl)
 
 	path = fmt.Sprintf("%s/ip", path)
-	go annyong.PostKey(ec, path, ip, 0)
+	go annyong.PostKey(ec, path, ip, ttl)
 
 	//Sleep in loop to let goroutines update etcd
 	for {
