@@ -5,34 +5,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/araddon/gou"
 	"github.com/coreos/go-etcd/etcd"
 	"github.com/ropes/annyong/pkg"
 )
-
-type cmdSlice []string
-
-func (c *cmdSlice) String() string {
-	return fmt.Sprintf("%s", *c)
-}
-func (c *cmdSlice) Set(value string) error {
-	*c = append(*c, value)
-	return nil
-}
-
-func parseCmds(cmds cmdSlice) *map[string]string {
-	cmap := make(map[string]string)
-	for _, c := range cmds {
-		tmp := strings.Split(c, "|")
-		if len(tmp) == 2 {
-			cmap[tmp[0]] = tmp[1]
-		}
-	}
-	return &cmap
-}
 
 var (
 	Info      *log.Logger
@@ -41,8 +19,8 @@ var (
 	ttl       uint64
 	pathStub  string
 	logLevel  string
-	cmds      cmdSlice
-	cmdMap    map[string]string
+	cmds      annyong.CmdSlice
+	cmdMap    *map[string]string
 )
 
 func main() {
@@ -56,7 +34,8 @@ func main() {
 	gou.SetupLogging(logLevel)
 
 	gou.Debugf("%#v\n", cmds)
-	gou.Debugf("%#v\n", parseCmds(cmds))
+	cmdMap = annyong.ParseCmds(cmds)
+	gou.Debugf("%#v\n", cmdMap)
 
 	//Connect to etcd
 	machines := []string{etcd_host}
