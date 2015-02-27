@@ -6,9 +6,11 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
+	"github.com/araddon/gou"
 	"github.com/coreos/go-etcd/etcd"
-	"github.com/ropes/annyong/Annyong"
+	"github.com/ropes/annyong/pkg"
 )
 
 var (
@@ -16,6 +18,8 @@ var (
 	Err       *log.Logger
 	etcd_host string
 	ttl       uint64
+	pathStub  string
+	logLevel  string
 )
 
 func findIp() {
@@ -27,48 +31,52 @@ func findIp() {
 }
 
 func main() {
+	flag.StringVar(&logLevel, "logLevel", "debug", "Log Level to run[debug,info,warn,error,fatal]")
 	flag.StringVar(&etcd_host, "etcd_host", "http://127.0.0.1:4001", "Connection string to the etcd [cluster]")
-	flag.Uint64Var(&ttl, "TTL", 30, "TTL of directories created")
+	flag.Uint64Var(&ttl, "TTL", 20, "TTL of directories created")
+	pathStub = "/annyong"
 
 	flag.Parse()
-	Info := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-
-	Info.Print("annyong!\n")
+	gou.SetupLogging(logLevel)
 
 	ip, err := annyong.GetIP()
 	if err != nil {
-		Info.Printf("Error getting IP: %#v \n", err)
+		gou.Infof("Error getting IP: %#v \n", err)
 	}
-	fmt.Printf("%s \n ", ip)
 
 	machines := []string{etcd_host}
 	ec := etcd.NewClient(machines)
 	fmt.Printf("%#v\n", ec)
 
 	h, _ := os.Hostname()
-	Info.Print(h)
-	path := fmt.Sprintf("/annyong/%s", h)
-	Info.Print(path)
+	gou.Info(h)
 
-	resp, _ := ec.Get("hihi", false, false)
-	if resp == nil {
-		Info.Print("response is nil!")
-	}
-	Info.Printf("get: %#v \n", resp)
+	path := fmt.Sprintf("%s/%s", pathStub, h)
+	gou.Info(path)
 
-	resp, _ = ec.CreateDir(path, ttl)
-	if resp == nil {
-		Info.Print("response is nil!")
-	}
-	Info.Printf("%#v \n", resp)
+	ec.CreateDir(pathStub, 0)
+	go annyong.HoldDir(ec, path, ttl)
+
+	path = fmt.Sprintf("%s/ip", path, ip)
+	gou.Info(path)
+	go annyong.PostKey(ec, path, ip, 0)
 
 	/*
-		  path := fmt.Sprintf("/annyong/%s", h)
-			resp, _ = ec.Create("hostname", h, path, ttl)
-			if resp == nil {
-				Info.Print("response is nil!")
-			}
-			Info.Printf("%#v \n", resp)
+		resp, _ := ec.Get("hihi", false, false)
+		if resp == nil {
+			Info.Print("response is nil!")
+		}
+		Info.Printf("get: %#v \n", resp)
+
+			  path := fmt.Sprintf("/annyong/%s", h)
+				resp, _ = ec.Create("hostname", h, path, ttl)
+				if resp == nil {
+					Info.Print("response is nil!")
+				}
+				Info.Printf("%#v \n", resp)
 	*/
+	for {
+		time.Sleep(10 * time.Second)
+	}
 
 }
