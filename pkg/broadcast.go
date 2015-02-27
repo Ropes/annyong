@@ -12,6 +12,7 @@ func FormNode() (*etcd.Node, error) {
 	return nil, nil
 }
 
+//Creates and holds
 func HoldDir(ec *etcd.Client, directory string, ttl uint64) {
 	fmt.Println("Holding Directory: ", directory)
 	resp, _ := ec.CreateDir(directory, ttl)
